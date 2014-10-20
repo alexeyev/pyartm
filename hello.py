@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import nltk
+import textmining
 
 stemmer = nltk.stem.porter.PorterStemmer()
 tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
@@ -14,5 +15,15 @@ text1 = """Alice was published in 1865, three years after Charles Lutwidge Dodgs
 
 text2 = """The Queen of Hearts She made some tarts,All on a summer's day;The Knave of Hearts He stole those tarts,And took them clean away.The King of Hearts Called for the tarts,And beat the knave full sore;The Knave of Hearts Brought back the tarts,And vowed he'd steal no more. """
 
-print get_words(text1)
-print get_words(text2)
+text3 = """The Queen of Hearts She made some tarts,All on a summer's day;The Knave of Hearts He stole those tarts,And took them clean away.The King of Hearts Called for the tarts,And beat the knave full sore;The Knave of Hearts Brought back the tarts,And vowed he'd steal no more. """
+
+#print get_words(text1)
+#print get_words(text2)
+
+tdm = textmining.TermDocumentMatrix()
+tdm.add_doc(text1)
+tdm.add_doc(text2)
+tdm.add_doc(text3)
+
+for row in tdm.rows(cutoff=1):
+    print row
