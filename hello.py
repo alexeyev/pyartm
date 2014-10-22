@@ -21,14 +21,23 @@ def build_matrix(texts):
     texts are filenames
     inefficient implementation
     """
+    print texts
     tdm = textmining.TermDocumentMatrix()
     for text in texts:
         data = open(text, "r").read()
         tdm.add_doc(norm(data))
-    return numpy.array([row for row in tdm.rows(cutoff=0)][1:])
+    rows_in_mem = [row for row in tdm.rows(cutoff=0)]
+    rest = rows_in_mem[1:]
+    headers = rows_in_mem[0]
+    return headers, numpy.array([row for row in rest])
 
 
 def em(topics, tdm):
-    return 0
+    d = tdm.shape[0]
+    w = tdm.shape[1]
+    wt = numpy.array([1.0 / w] * (w * topics)).reshape(w, topics)
+    return wt
 
 print build_matrix(["cartoon.txt", "book.txt"])
+
+print em(10, build_matrix(["cartoon.txt", "book.txt"])[1])
