@@ -10,7 +10,7 @@ from scipy.sparse import *
 def build_tdm(filenames):
     texts = [open(fn, "r+").read() for fn in filenames]
     stopwords = nltk.corpus.stopwords.words('english')
-    vectorizer = fe.text.CountVectorizer(min_df=1, ngram_range=(1, 2), max_df=0.5, stop_words=stopwords)
+    vectorizer = fe.text.CountVectorizer(min_df=2, ngram_range=(1, 2), max_df=0.5, stop_words=stopwords)
 
     # строки -- документы, столбцы -- слова
     X_words = vectorizer.fit_transform(texts)
@@ -62,11 +62,15 @@ def em(tdm, topics, iterations):
                     nd[d, 0] += exp
         for t in xrange(topics):
             for w in xrange(words):
-                phi = nwt[w, t] / nt[w, 0]
+                phi[w, t] = nwt[w, t] / nt[t, 0]
             for d in xrange(docs):
-                theta = ntd[t, d] / nd[d, 0]
+                theta[t, d] = ntd[t, d] / nd[d, 0]
     return phi, theta
 
 
 tdm = build_tdm(["book.txt", "cartoon.txt", "series.txt"])[1]
+
+print tdm
+print tdm.shape
+
 print em(tdm, 2, 20)
