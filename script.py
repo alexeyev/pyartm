@@ -16,21 +16,57 @@ def build_tdm(filenames):
     X_words = vectorizer.fit_transform(texts)
     return vectorizer.get_feature_names(), X_words
 
-tdm = build_tdm(["artm/book.txt", "artm/cartoon.txt", "artm/series.txt"])[1]
+
+def init_matrices(terms, docs, topics):
+    """ phi_w,t = p(w | t), theta_t,d = p(t | d) """
+    phi = csc_matrix((terms, topics))
+
+    for i in xrange(min(terms, topics)):
+        phi[i, i] = 1
+
+    theta = csc_matrix((topics, docs))
+
+    for i in xrange(min(docs, topics)):
+        phi[i, i] = 1
+
+    return phi, theta
+
+
+def sm(rows, columns):
+    return csc_matrix((rows, columns))
 
 
 def em(tdm, topics, iterations):
-    docs, terms = tdm.shape[0]
-    theta = csc_matrix((terms, topics))
+    docs, words = tdm.shape
+    phi, theta = init_matrices(words, docs, topics)
+
     for i in xrange(iterations):
-        print i, "iter"
-        #     init shit
-        for doc in xrange(docs):
-            for term in xrange(terms):
-                print theta[term]
+
+        print i, "iteration"
+
+        nwt, ntd, nt, nd = sm(words, topics), sm(topics, docs), sm(topics, 1), sm(docs, 1)
+
+        for d in xrange(docs):
+            for w in xrange(words):
+
+                phi_theta_dw = 0.0
+                for t in xrange(topics):
+                    phi_theta_dw += phi[w, t] * theta[t, d]
+
+                for t in xrange(topics):
+                    ptwd = phi[w, t] * theta[t, d] / phi_theta_dw
+                    exp = ptwd * tdm[d, w]
+                    nwt[w, t] += exp
+                    ntd[t, d] += exp
+                    nt[t, 0] += exp
+                    nd[d, 0] += exp
+        for t in xrange(topics):
+            for w in xrange(words):
+                phi = nwt[w, t] / nt[w, 0]
+            for d in xrange(docs):
+                theta = ntd[t, d] / nd[d, 0]
+    return phi, theta
 
 
-
-    return 0
-
+tdm = build_tdm(["book.txt", "cartoon.txt", "series.txt"])[1]
 print em(tdm, 2, 20)
