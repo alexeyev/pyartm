@@ -22,12 +22,12 @@ def init_matrices(terms, docs, topics):
     phi = csc_matrix((terms, topics))
 
     for i in xrange(min(terms, topics)):
-        phi[i, i] = 1
+        phi[i, i] = 1.0
 
     theta = csc_matrix((topics, docs))
 
     for i in xrange(min(docs, topics)):
-        phi[i, i] = 1
+        phi[i, i] = 1.0
 
     return phi, theta
 
@@ -48,13 +48,13 @@ def em(tdm, topics, iterations):
 
         for d in xrange(docs):
             for w in xrange(words):
-
                 phi_theta_dw = 0.0
+
                 for t in xrange(topics):
                     phi_theta_dw += phi[w, t] * theta[t, d]
 
                 for t in xrange(topics):
-                    ptwd = phi[w, t] * theta[t, d] / phi_theta_dw
+                    ptwd = phi[w, t] * theta[t, d] / (phi_theta_dw + 0.001)
                     exp = ptwd * tdm[d, w]
                     nwt[w, t] += exp
                     ntd[t, d] += exp
@@ -62,15 +62,23 @@ def em(tdm, topics, iterations):
                     nd[d, 0] += exp
         for t in xrange(topics):
             for w in xrange(words):
-                phi[w, t] = nwt[w, t] / nt[t, 0]
+                phi[w, t] = nwt[w, t] / (nt[t, 0] + 0.0001)
             for d in xrange(docs):
-                theta[t, d] = ntd[t, d] / nd[d, 0]
+                theta[t, d] = ntd[t, d] / (nd[d, 0] + 0.0001)
     return phi, theta
 
+from os import listdir
+from os.path import isfile, join
+path = "corpus"
+onlyfiles = [join(path,f) for f in listdir(path) if isfile(join(path,f))]
 
-tdm = build_tdm(["book.txt", "cartoon.txt", "series.txt"])[1]
+print onlyfiles
+
+tdm = build_tdm(onlyfiles)[1]
 
 print tdm
 print tdm.shape
 
-print em(tdm, 2, 20)
+wt, td = em(tdm, 2, 2)
+
+print wt.todense()
