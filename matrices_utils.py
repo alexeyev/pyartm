@@ -9,7 +9,8 @@ import sklearn.feature_extraction as fe
 
 def build_tdm(filenames, min_df=0.1, max_df=0.3, ngram_range=(1, 1)):
     """
-    Given filenames, builds term-document matrix; rows = terms, columns = documents
+        Given filenames, builds term-document matrix;
+        rows = terms, columns = documents
     """
     texts = [open(fn, "r+").read() for fn in filenames]
     stopwords = nltk.corpus.stopwords.words('english')
@@ -47,7 +48,6 @@ def init_matrices(terms, docs, topics):
 def sm(rows, columns):
     """ Create empty sparse matrix with giver shape """
     return dok_matrix((rows, columns))
-
 
 def relative_frequencies_tdm(tdm_csc):
     freq_tdm = dok_matrix(tdm_csc.shape)
