@@ -11,7 +11,7 @@ import sklearn.feature_extraction as fe
 def build_tdm(filenames):
     texts = [open(fn, "r+").read() for fn in filenames]
     stopwords = nltk.corpus.stopwords.words('english')
-    vectorizer = fe.text.CountVectorizer(min_df=0.2, ngram_range=(1, 2), max_df=1, stop_words=stopwords)
+    vectorizer = fe.text.CountVectorizer(min_df=0.2, ngram_range=(1, 2), max_df=1.0, stop_words=stopwords)
 
     # строки -- документы, столбцы -- слова
     X_words = vectorizer.fit_transform(texts)
@@ -22,13 +22,15 @@ def init_matrices(terms, docs, topics):
     """ phi_w,t = p(w | t), theta_t,d = p(t | d) """
     phi = lil_matrix((terms, topics))
 
-    for i in xrange(min(terms, topics)):
-        phi[i, i] = 1.0
+    for i in xrange(topics):
+        for j in xrange(terms):
+            phi[j, i] = 1.0 / terms
 
-    theta = csc_matrix((topics, docs))
+    theta = lil_matrix((topics, docs))
 
-    for i in xrange(min(docs, topics)):
-        phi[i, i] = 1.0
+    for i in xrange(docs):
+        for j in xrange(topics):
+            theta[j, i] = 1.0 / topics
 
     return phi, theta
 
@@ -43,10 +45,9 @@ def em(tdm, topics, iterations):
 
     for i in xrange(iterations):
 
-        print i, "iteration"
+        print "iteration #", i
 
         nwt, ntd, nt, nd = sm(words, topics), sm(topics, docs), sm(topics, 1), sm(docs, 1)
-        print "matrices set"
 
         for d in xrange(docs):
             print "doc", d
@@ -65,7 +66,7 @@ def em(tdm, topics, iterations):
                     ntd[t, d] += exp
                     nt[t, 0] += exp
                     nd[d, 0] += exp
-            print
+            print nd.todense()
 
         for t in xrange(topics):
             print "topic", t
@@ -82,11 +83,11 @@ onlyfiles = [join(path,f) for f in listdir(path) if isfile(join(path,f))]
 
 print onlyfiles
 
-tdm = build_tdm(onlyfiles[:4])[1]
+tdm = build_tdm(onlyfiles[:10])[1]
 
 print tdm
 print tdm.shape
 
-wt, td = em(tdm, 10, 2)
+wt, td = em(tdm, 3, 10)
 
 print wt.todense()
