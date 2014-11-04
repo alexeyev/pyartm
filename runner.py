@@ -4,7 +4,7 @@
 from os import listdir
 from os.path import isfile, join
 
-from em_learning import *
+from learner import *
 
 
 path = "more"
@@ -16,7 +16,9 @@ words, tdm = build_tdm(onlyfiles[:70], min_df=0.25, max_df=0.70)
 
 print "tdm built, starting EM"
 
-wt, td = em(tdm, 2, 100)
+lrnr = EMStaticRegLearner(iter_number=40)
+
+wt, td = lrnr.learn(tdm, 5)
 
 print "done"
 
