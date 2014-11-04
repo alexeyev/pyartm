@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import nltk
-import numpy
 from scipy import *
 from scipy.sparse import *
 import sklearn.feature_extraction as fe
@@ -11,10 +10,14 @@ import sklearn.feature_extraction as fe
 def build_tdm(filenames):
     texts = [open(fn, "r+").read() for fn in filenames]
     stopwords = nltk.corpus.stopwords.words('english')
-    vectorizer = fe.text.CountVectorizer(min_df=0.2, ngram_range=(1, 2), max_df=1.0, stop_words=stopwords)
+    vectorizer = fe.text.CountVectorizer(min_df=0.2, ngram_range=(1,1), max_df=0.9, stop_words=stopwords)
 
     # строки -- документы, столбцы -- слова
     X_words = vectorizer.fit_transform(texts)
+
+    for i in xrange(len(vectorizer.get_feature_names())):
+        print vectorizer.get_feature_names()[i], "\t\t\t",
+        print X_words[:, i].todense().transpose()
     return vectorizer.get_feature_names(), X_words
 
 
@@ -52,21 +55,18 @@ def em(tdm, topics, iterations):
         for d in xrange(docs):
             print "doc", d
             for w in xrange(words):
-                if w % 500 == 0:
-                    print w,
                 phi_theta_dw = 0.0
 
                 for t in xrange(topics):
                     phi_theta_dw += phi[w, t] * theta[t, d]
 
                 for t in xrange(topics):
-                    ptwd = phi[w, t] * theta[t, d] / (phi_theta_dw + 0.001)
+                    ptwd = phi[w, t] * theta[t, d] / phi_theta_dw
                     exp = ptwd * tdm[d, w]
                     nwt[w, t] += exp
                     ntd[t, d] += exp
                     nt[t, 0] += exp
                     nd[d, 0] += exp
-            print nd.todense()
 
         for t in xrange(topics):
             print "topic", t
@@ -76,18 +76,29 @@ def em(tdm, topics, iterations):
                 theta[t, d] = ntd[t, d] / (nd[d, 0] + 0.0001)
     return phi, theta
 
+
 from os import listdir
 from os.path import isfile, join
+
 path = "corpus"
-onlyfiles = [join(path,f) for f in listdir(path) if isfile(join(path,f))]
+onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
 
 print onlyfiles
 
-tdm = build_tdm(onlyfiles[:10])[1]
+words, tdm = build_tdm(onlyfiles[:4])
 
 print tdm
 print tdm.shape
 
-wt, td = em(tdm, 3, 10)
+wt, td = em(tdm, 10, 100)
+recovered = (wt * td).transpose().todense()
+freq_tdm = lil_matrix(tdm.shape)
 
-print wt.todense()
+for i in xrange(tdm.shape[0]):
+    denom = float(sum(tdm[i].todense()))
+    for j in xrange(tdm.shape[1]):
+        freq_tdm[i, j] = tdm[i, j] / denom
+
+print freq_tdm.todense()
+# print tdm.todense()
+print recovered
