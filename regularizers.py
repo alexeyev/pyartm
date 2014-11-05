@@ -1,10 +1,10 @@
 # !/usr/bin/python
 # -*- coding: utf-8 -*-
 
-class Reg:
+from scipy.sparse import *
 
-    def __init__(self, shape_wt, shape_td):
-        pass
+
+class Reg:
 
     def f(self, wt, td):
         """
@@ -22,3 +22,12 @@ class Reg:
         :return:
         """
         raise NotImplementedError()
+
+
+class ZeroRegularizer(Reg):
+
+    def f(self, wt, td):
+        return dok_matrix(wt.shape), dok_matrix(td.shape)
+
+    def df(self, wt, td):
+        return dok_matrix(wt.shape), dok_matrix(td.shape)

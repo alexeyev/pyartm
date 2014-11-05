@@ -12,13 +12,13 @@ class Learner:
 
 
 class EMStaticRegLearner(Learner):
-    def __init__(self, iter_number=50, regularizers=[], reg_coefficients=[]):
+    """
+        EM learning without any regularizers
+    """
+    def __init__(self, iter_number=50):
         self.iter = iter_number
-        self.regs = regularizers
-        self.reg_coefficients = reg_coefficients
 
     def learn(self, wdm, topics_number):
-        print "PLEASE NOTE: REGULARIZERS ARE NOT SUPPORTED YET; ENJOY PLAIN P-LSA"
         return self.__em(wdm, topics_number, self.iter)
 
     def __em(self, tdm_csc, topics, iterations):
@@ -60,11 +60,10 @@ class EMStaticRegLearner(Learner):
                     for t in xrange(topics):
                         phi_theta_dw += phi[w, t] * theta[t, d]
                     for t in xrange(topics):
-                        if phi[w, t] != 0 and theta[t, d] != 0:
-                            expe = (phi[w, t] * theta[t, d]) / (phi_theta_dw + 0.0001) * tdm[w, d]
-                            nwt[w, t] += expe
-                            ntd[t, d] += expe
-                            nd[d, 0] += expe
+                        exp_ndwt = (phi[w, t] * theta[t, d]) / (phi_theta_dw + 0.0001) * tdm[w, d]
+                        nwt[w, t] += exp_ndwt
+                        ntd[t, d] += exp_ndwt
+                        nd[d, 0] += exp_ndwt
 
             print
             print "reestimating phi and theta"
