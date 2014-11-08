@@ -5,7 +5,7 @@ from os import listdir
 from os.path import isfile, join
 
 from learner import *
-from regularizers import ZeroRegularizer
+from regularizers import ZeroRegularizer, LDARegularizer
 
 
 class DumbEMStaticRegLearner(Learner):
@@ -66,16 +66,20 @@ class DumbEMStaticRegLearner(Learner):
             for w in xrange(words):
                 for t in xrange(topics):
                     for d in xrange(docs):
-                        nwt[w, t] += tdm[w, d] * p_tdw[t][d, w]
-                        ntd[t, d] += tdm[w, d] * p_tdw[t][d, w]
-
-            # raise NotImplementedError()
-            # todo: normalize
+                        term = tdm[w, d] * p_tdw[t][d, w]
+                        nwt[w, t] += term
+                        ntd[t, d] += term
 
             for w in xrange(words):
                 for t in xrange(topics):
                     reg_eval_sum = 0.0
                     for r_id in xrange(len(self.regs)):
+                        print self.regs
+                        print self.reg_coefficients
+                        print r_id
+                        self.reg_coefficients[r_id]
+                        self.regs[r_id]
+                        self.regs[r_id].df(phi, theta)[0][w, t]
                         reg_eval_sum += phi[w, t] * self.reg_coefficients[r_id] * self.regs[r_id].df(phi, theta)[0][
                             w, t]
                     phi[w, t] = pos(nwt[w, t] + reg_eval_sum)
@@ -86,7 +90,9 @@ class DumbEMStaticRegLearner(Learner):
                 for w in xrange(words):
                     denom += phi[w, t]
                 for w in xrange(words):
+                    print phi[w, t], "/", denom
                     phi[w, t] /= denom
+                    print phi[w, t]
 
             for d in xrange(docs):
                 for t in xrange(topics):
@@ -106,6 +112,7 @@ class DumbEMStaticRegLearner(Learner):
             # print "computing norm"
             norm_val = norm(((phi.tocsr() * theta.tocsc()) - freq_tdm.tocsr()).toarray(2), 1)
 
+            print phi
         return phi, theta
 
 
@@ -121,8 +128,9 @@ words, tdm = build_tdm(onlyfiles[:70], min_df=0.25, max_df=0.70)
 
 print "TDM built, starting EM..."
 
-lrnr = DumbEMStaticRegLearner(iter_number=40, regularizers=[ZeroRegularizer()], reg_coefficients=[1])
-wt, td = lrnr.learn(tdm, 5)
+lrnr = DumbEMStaticRegLearner(iter_number=3, regularizers=[ZeroRegularizer(), ZeroRegularizer(), ZeroRegularizer()],
+                              reg_coefficients=[0.33, 0.33, 0.33])
+wt, td = lrnr.learn(tdm, 3)
 
 print "It is done."
 
