@@ -1,0 +1,34 @@
+An information retrieval process begins when a user enters a query into the system. Queries are formal statements of information needs, for example search strings in web search engines.
+In information retrieval a query does not uniquely identify a single object in the collection.
+Instead, several objects may match the query, perhaps with different degrees of relevancy.
+
+An object is an entity that is represented by information in a database. User queries are matched
+against the database information. Depending on the application the data objects may be, for example,
+text documents, images,[1] audio,[2] mind maps[3] or videos. Often the documents themselves are not
+kept or stored directly in the IR system, but are instead represented in the system by document surrogates or metadata.
+
+Most IR systems compute a numeric score on how well each object in the database matches the query,
+and rank the objects according to this value. The top ranking objects are then shown to the user.
+The process may then be iterated if the user wishes to refine the query.
+
+For effectively retrieving relevant documents by IR strategies, the documents are typically transformed into a suitable representation. Each retrieval strategy incorporates a specific model for its document representation purposes. The picture on the right illustrates the relationship of some common models. In the picture, the models are categorized according to two dimensions: the mathematical basis and the properties of the model.
+
+First dimension: mathematical basis[edit]
+Set-theoretic models represent documents as sets of words or phrases. Similarities are usually derived from set-theoretic operations on those sets. Common models are:
+Standard Boolean model
+Extended Boolean model
+Fuzzy retrieval
+Algebraic models represent documents and queries usually as vectors, matrices, or tuples. The similarity of the query vector and document vector is represented as a scalar value.
+Vector space model
+Generalized vector space model
+(Enhanced) Topic-based Vector Space Model
+Extended Boolean model
+Latent semantic indexing aka latent semantic analysis
+Probabilistic models treat the process of document retrieval as a probabilistic inference. Similarities are computed as probabilities that a document is relevant for a given query. Probabilistic theorems like the Bayes' theorem are often used in these models.
+Binary Independence Model
+Probabilistic relevance model on which is based the okapi (BM25) relevance function
+Uncertain inference
+Language models
+Divergence-from-randomness model
+Latent Dirichlet allocation
+Feature-based retrieval models view documents as vectors of values of feature functions (or just features) and seek the best way to combine these features into a single relevance score, typically by learning to rank methods. Feature functions are arbitrary functions of document and query, and as such can easily incorporate almost any other retrieval model as just a yet another feature.

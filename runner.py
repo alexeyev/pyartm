@@ -14,7 +14,7 @@ print onlyfiles
 
 # Building a term-document matrix
 
-words, tdm = build_tdm(onlyfiles[:70], min_df=0.25, max_df=0.70)
+words, tdm = build_tdm(onlyfiles[:4], min_df=0.25, max_df=0.70)
 
 print "TDM built, starting EM..."
 

@@ -1,6 +1,7 @@
 # !/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import numpy
 from numpy.linalg import norm
 
 from matrices_utils import *
