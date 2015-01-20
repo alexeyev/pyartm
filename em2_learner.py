@@ -46,6 +46,7 @@ class DumbEMStaticRegLearner(Learner):
             i += 1
 
             nwt, ntd, nd = sm(words, topics), sm(topics, docs), sm(docs, 1)
+            # 3d matrix of p(tdw); p[topic][doc, word]
             p_tdw = array(array(dok_matrix((docs, words))).repeat(topics))
 
             print "E-step"
@@ -56,6 +57,7 @@ class DumbEMStaticRegLearner(Learner):
                     denom = 0.0
                     for t in xrange(topics):
                         denom += phi[w, t] * theta[t, d]
+                    print denom
                     for t in xrange(topics):
                         p_tdw[t][d, w] = phi[w, t] * theta[t, d] / denom
 

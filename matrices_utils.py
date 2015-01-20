@@ -22,9 +22,9 @@ def build_tdm(filenames, min_df=0.1, max_df=0.3, ngram_range=(1, 1)):
 
     X_words = vectorizer.fit_transform(texts).transpose()
 
-    for i in xrange(len(vectorizer.get_feature_names())):
-        print vectorizer.get_feature_names()[i], "\t\t\t",
-        print X_words[i, :].todense()
+    # for i in xrange(len(vectorizer.get_feature_names())):
+        # print vectorizer.get_feature_names()[i], "\t\t\t",
+        # print X_words[i, :].todense()
     return vectorizer.get_feature_names(), X_words
 
 
@@ -39,18 +39,23 @@ def init_matrices(terms, docs, topics):
         for j in xrange(terms):
             phi[j, i] = 1.0 / terms
 
+    # print "phi"
+    # print phi
+
     theta = dok_matrix((topics, docs))
 
     for i in xrange(docs):
-        # theta[0, i] = 1.0
         for j in xrange(topics):
             theta[j, i] = 1.0 / topics
+
+    # print "theta"
+    # print theta
 
     return phi, theta
 
 
 def sm(rows, columns):
-    """ Create empty sparse matrix with giver shape """
+    """ Create empty sparse matrix with given shape """
     return dok_matrix((rows, columns))
 
 
