@@ -20,15 +20,15 @@ words, tdm = build_tdm(onlyfiles[:6], min_df=0.0, max_df=1.0)
 print "TDM built, starting EM..."
 
 lrnr = EMStaticRegLearner(iter_number=5)
-wt, td = lrnr.learn(tdm, 2)
+wt, td = lrnr.learn(tdm, 3)
 
 print "It is done."
 
 result = (wt * td).todense()
 # print result
 
-# for word, row in zip(words, result):
-#     print row, word
-#
-# for word, row in zip(words, relative_frequencies_tdm(tdm).todense()):
-#     print row, word
+for word, row in zip(words, result):
+    print row, word
+
+for word, row in zip(words, relative_frequencies_tdm(tdm).todense()):
+    print row, word

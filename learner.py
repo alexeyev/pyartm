@@ -16,6 +16,7 @@ class EMStaticRegLearner(Learner):
     """
         EM learning without any regularizers
     """
+
     def __init__(self, iter_number=50):
         self.iter = iter_number
 
@@ -50,42 +51,51 @@ class EMStaticRegLearner(Learner):
             print "iteration #", i, "norm = ", norm_val
             i += 1
 
-            nwt, ntd, nd = sm(words, topics_number), sm(topics_number, docs), sm(docs, 1)
+            nwt, ntd, nd, nt = sm(words, topics_number), sm(topics_number, docs), sm(docs, 1), sm(topics_number, 1)
 
             print "computing expectations"
-            print "docs",
+
 
             for d in xrange(docs):
                 # if d % 50 == 0:
-                #     print d,
+                # print d,
                 for w in tdm_csc[:, d].nonzero()[0]:
+                    # print w, d, "|where ", w," is non zero in tdm in this doc"
                     phi_theta_dw = 0.0
                     for t in xrange(topics_number):
                         phi_theta_dw += phi[w, t] * theta[t, d]
                     for t in xrange(topics_number):
                         exp_ndwt = (phi[w, t] * theta[t, d]) / (phi_theta_dw + 0.0001) * tdm[w, d]
+                        print (w, d), tdm[w, d], "|",exp_ndwt
+                        # print exp_ndwt, "=", phi[w, t] * theta[t, d], "/", phi_theta_dw, "*", tdm[w, d]
                         nwt[w, t] += exp_ndwt
                         ntd[t, d] += exp_ndwt
                         nd[d, 0] += exp_ndwt
+                        nt[t, 0] += exp_ndwt
 
-            print
+            print nwt.todense()
+            print ntd.todense()
+            print nd.todense()
+
             print "reestimating phi and theta"
 
             nwt = nwt.tocsc()
 
             for t in xrange(topics_number):
                 print "topic", t
-                nt_t = sum(nwt.getcol(t).toarray(1)) + 0.0001
-                print "nt_t", nt_t
+                #nt_t = sum(nwt.getcol(t).toarray(1)) + 0.0001
+                #print "nt_t", nt_t
                 for w in xrange(words):
-                    phi[w, t] = nwt[w, t] / nt_t
+                    #phi[w, t] = nwt[w, t] / nt_t
+                    phi[w, t] = nwt[w, t] / (nt[t, 0] + 0.001)
                 for d in xrange(docs):
                     theta[t, d] = ntd[t, d] / (nd[d, 0] + 0.0001)
-            print "theta", theta.toarray(1)
 
-            print "norm =                                    " , norm((phi.tocsr() * theta.tocsc() - freq_tdm.tocsr()).toarray())
+            print "norm =                                    ", norm(
+                (phi.tocsr() * theta.tocsc() - freq_tdm.tocsr()).toarray())
+            print "phi\n", phi.todense()
+            print "theta\n", theta.todense()
             print "*\n", (phi.tocsr() * theta.tocsc()).todense()
-            print "freq tdm\n", freq_tdm.todense()
             # norm_val = norm(phi.tocsr() * theta.tocsc() - freq_tdm.tocsr(), 1)
 
         return phi, theta

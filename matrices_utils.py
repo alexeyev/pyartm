@@ -5,6 +5,7 @@ import nltk
 from scipy import *
 from scipy.sparse import *
 import sklearn.feature_extraction as fe
+import random
 
 
 def pos(val):
@@ -23,8 +24,8 @@ def build_tdm(filenames, min_df=0.1, max_df=0.3, ngram_range=(1, 1)):
     X_words = vectorizer.fit_transform(texts).transpose()
 
     # for i in xrange(len(vectorizer.get_feature_names())):
-        # print vectorizer.get_feature_names()[i], "\t\t\t",
-        # print X_words[i, :].todense()
+    # print vectorizer.get_feature_names()[i], "\t\t\t",
+    # print X_words[i, :].todense()
     return vectorizer.get_feature_names(), X_words
 
 
@@ -36,8 +37,12 @@ def init_matrices(terms, docs, topics):
     phi = dok_matrix((terms, topics))
 
     for i in xrange(topics):
+        sum = 0
         for j in xrange(terms):
-            phi[j, i] = 1.0 / terms
+            phi[j, i] = random.random()
+            sum += phi[j, i]
+        for j in xrange(terms):
+            phi[j, i] = phi[j, i] / sum
 
     # print "phi"
     # print phi
@@ -45,8 +50,12 @@ def init_matrices(terms, docs, topics):
     theta = dok_matrix((topics, docs))
 
     for i in xrange(docs):
+        sum = 0
         for j in xrange(topics):
-            theta[j, i] = 1.0 / topics
+            theta[j, i] = random.random()
+            sum += theta[j, i]
+        for j in xrange(topics):
+            theta[j, i] = theta[j, i] / sum
 
     # print "theta"
     # print theta

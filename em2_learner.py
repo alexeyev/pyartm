@@ -118,23 +118,25 @@ class DumbEMStaticRegLearner(Learner):
         return phi, theta
 
 
-# Choosing a directory with texts
+if __name__ == '__main__':
 
-path = "more"
-onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
-print onlyfiles
+    # Choosing a directory with texts
 
-# Building a term-document matrix
+    path = "more"
+    onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
+    print onlyfiles
 
-words, tdm = build_tdm(onlyfiles[:70], min_df=0.25, max_df=0.70)
+    # Building a term-document matrix
 
-print "TDM built, starting EM..."
+    words, tdm = build_tdm(onlyfiles[:70], min_df=0.25, max_df=0.70)
 
-lrnr = DumbEMStaticRegLearner(iter_number=3, regularizers=[ZeroRegularizer(), ZeroRegularizer(), ZeroRegularizer()],
-                              reg_coefficients=[0.33, 0.33, 0.33])
-wt, td = lrnr.learn(tdm, 3)
+    print "TDM built, starting EM..."
 
-print "It is done."
+    lrnr = DumbEMStaticRegLearner(iter_number=3, regularizers=[ZeroRegularizer(), ZeroRegularizer(), ZeroRegularizer()],
+                                  reg_coefficients=[0.33, 0.33, 0.33])
+    wt, td = lrnr.learn(tdm, 3)
 
-print (wt * td).todense()
-print relative_frequencies_tdm(tdm).todense()
+    print "It is done."
+
+    print (wt * td).todense()
+    print relative_frequencies_tdm(tdm).todense()
