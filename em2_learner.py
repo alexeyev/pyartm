@@ -26,8 +26,8 @@ class DumbEMStaticRegLearner(Learner):
             :return:
         """
 
-        print "computing relative TDM frequencies"
-        freq_tdm = relative_frequencies_tdm(tdm_csc)
+        # print "computing relative TDM frequencies"
+        # freq_tdm = relative_frequencies_tdm(tdm_csc)
 
         print "converting tdm to DOK matrix"
         tdm = tdm_csc.todok()
@@ -36,13 +36,16 @@ class DumbEMStaticRegLearner(Learner):
         print "initializing helper matrices"
         phi, theta = init_matrices(words, docs, topics)
 
+        print "before shit\n", (phi.tocsr() * theta.tocsc()).todense()
+        print "phi\n", phi.todense()
+        print "theta\n", theta.todense()
+
         i = 0
-        norm_val = 2.0
 
         while i < iterations:  # and norm_val > 0.01:
 
             print "---------------------------------"
-            print "iteration #", i, "norm = ", norm_val
+            print "iteration #", i  # , "norm = ", norm_val
             i += 1
 
             nwt, ntd, nd = sm(words, topics), sm(topics, docs), sm(docs, 1)
@@ -57,7 +60,7 @@ class DumbEMStaticRegLearner(Learner):
                     denom = 0.0
                     for t in xrange(topics):
                         denom += phi[w, t] * theta[t, d]
-                    print denom
+                    # print denom
                     for t in xrange(topics):
                         p_tdw[t][d, w] = phi[w, t] * theta[t, d] / denom
 
@@ -108,35 +111,13 @@ class DumbEMStaticRegLearner(Learner):
                 denom = 0.0
                 for t in xrange(topics):
                     denom += theta[t, d]
+                    print theta[t, d],
+                print
+                print denom
                 for t in xrange(topics):
                     theta[t, d] /= denom
 
-            # print "computing norm"
-            norm_val = norm(((phi.tocsr() * theta.tocsc()) - freq_tdm.tocsr()).toarray(2), 2)
+                    # print "computing norm"
+                    # norm_val = norm(((phi.tocsr() * theta.tocsc()) - freq_tdm.tocsr()).toarray(2), 2)
 
-            print phi
         return phi, theta
-
-
-if __name__ == '__main__':
-
-    # Choosing a directory with texts
-
-    path = "more"
-    onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
-    print onlyfiles
-
-    # Building a term-document matrix
-
-    words, tdm = build_tdm(onlyfiles[:70], min_df=0.25, max_df=0.70)
-
-    print "TDM built, starting EM..."
-
-    lrnr = DumbEMStaticRegLearner(iter_number=3, regularizers=[ZeroRegularizer(), ZeroRegularizer(), ZeroRegularizer()],
-                                  reg_coefficients=[0.33, 0.33, 0.33])
-    wt, td = lrnr.learn(tdm, 3)
-
-    print "It is done."
-
-    print (wt * td).todense()
-    print relative_frequencies_tdm(tdm).todense()

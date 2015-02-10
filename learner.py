@@ -30,35 +30,28 @@ class EMStaticRegLearner(Learner):
             :param iterations:
             :return:
         """
-        print "computing relative TDM frequencies"
-        freq_tdm = relative_frequencies_tdm(tdm_csc)
 
-        print "converting tdm to DOK matrix"
         tdm = tdm_csc.todok()
-
         words, docs = tdm_csc.shape
-        print "initializing helper matrices"
         phi, theta = init_matrices(words, docs, topics_number)
 
         i = 0
-        norm_val = 2.0
 
         print "before shit\n", (phi.tocsr() * theta.tocsc()).todense()
+        print "phi\n", phi.todense()
+        print "theta\n", theta.todense()
 
-        while i < iterations:  # and norm_val > 0.01:
+        while i < iterations:
 
-            print "---------------------------------"
-            print "iteration #", i, "norm = ", norm_val
+            print "iteration #", i,
             i += 1
 
             nwt, ntd, nd, nt = sm(words, topics_number), sm(topics_number, docs), sm(docs, 1), sm(topics_number, 1)
 
-            print "computing expectations"
+            print "E...",
 
 
             for d in xrange(docs):
-                # if d % 50 == 0:
-                # print d,
                 for w in tdm_csc[:, d].nonzero()[0]:
                     # print w, d, "|where ", w," is non zero in tdm in this doc"
                     phi_theta_dw = 0.0
@@ -66,36 +59,19 @@ class EMStaticRegLearner(Learner):
                         phi_theta_dw += phi[w, t] * theta[t, d]
                     for t in xrange(topics_number):
                         exp_ndwt = (phi[w, t] * theta[t, d]) / (phi_theta_dw + 0.0001) * tdm[w, d]
-                        print (w, d), tdm[w, d], "|",exp_ndwt
-                        # print exp_ndwt, "=", phi[w, t] * theta[t, d], "/", phi_theta_dw, "*", tdm[w, d]
                         nwt[w, t] += exp_ndwt
                         ntd[t, d] += exp_ndwt
                         nd[d, 0] += exp_ndwt
                         nt[t, 0] += exp_ndwt
 
-            print nwt.todense()
-            print ntd.todense()
-            print nd.todense()
-
-            print "reestimating phi and theta"
+            print "M..."
 
             nwt = nwt.tocsc()
 
             for t in xrange(topics_number):
-                print "topic", t
-                #nt_t = sum(nwt.getcol(t).toarray(1)) + 0.0001
-                #print "nt_t", nt_t
                 for w in xrange(words):
-                    #phi[w, t] = nwt[w, t] / nt_t
                     phi[w, t] = nwt[w, t] / (nt[t, 0] + 0.001)
                 for d in xrange(docs):
                     theta[t, d] = ntd[t, d] / (nd[d, 0] + 0.0001)
-
-            print "norm =                                    ", norm(
-                (phi.tocsr() * theta.tocsc() - freq_tdm.tocsr()).toarray())
-            print "phi\n", phi.todense()
-            print "theta\n", theta.todense()
-            print "*\n", (phi.tocsr() * theta.tocsc()).todense()
-            # norm_val = norm(phi.tocsr() * theta.tocsc() - freq_tdm.tocsr(), 1)
 
         return phi, theta
