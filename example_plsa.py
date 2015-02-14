@@ -11,20 +11,20 @@ if __name__ == '__main__':
 
     # Choosing a directory with texts
 
-    path = "more"
+    path = "corpus/small_test"
     onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
     print "files:", ", ".join(onlyfiles)
 
     # Building a term-document matrix
 
-    words, tdm = build_tdm(onlyfiles, min_df=0.25, max_df=0.70)
+    words, tdm = build_tdm(onlyfiles, min_df=0.25, max_df=1.0)
 
     print tdm.todense()
 
     print "TDM built, starting EM..."
 
     learner = EMStaticRegLearner(iter_number=100)
-    wt, td = learner.learn(tdm, topics_number=5)
+    wt, td = learner.learn(tdm, topics_number=2)
 
     print "It is done."
 
@@ -32,6 +32,9 @@ if __name__ == '__main__':
 
     for word, row in zip(result, words):
         print word, row
+
+    print
+    print relative_frequencies_tdm(wt * td).todense()
 
     print "\nword -> topic\n"
 
