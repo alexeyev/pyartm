@@ -21,8 +21,8 @@ class DumbEMStaticRegLearner(Learner):
             :return:
         """
 
-        print "computing relative TDM frequencies"
-        freq_tdm = relative_frequencies_tdm(tdm_csc)
+        # print "computing relative TDM frequencies"
+        # freq_tdm = relative_frequencies_tdm(tdm_csc)
 
         print "converting tdm to DOK matrix"
         tdm = tdm_csc.todok()
@@ -31,12 +31,7 @@ class DumbEMStaticRegLearner(Learner):
         print "initializing helper matrices"
         phi, theta = init_matrices(words, docs, topics)
 
-        print "before shit\n", (phi.tocsr() * theta.tocsc()).todense()
-        print "phi\n", phi.todense()
-        print "theta\n", theta.todense()
-
         i = 0
-        phi_old = sm(phi.shape[0], phi.shape[1])
         normm = 10.0
 
         while i < iterations and normm > 0.000001:
@@ -64,10 +59,12 @@ class DumbEMStaticRegLearner(Learner):
                         exp_ndwt = (phi[w, t] * theta[t, d]) / (phi_theta_dw + 0.0001) * tdm[w, d]
                         nwt[w, t] += exp_ndwt
                         ntd[t, d] += exp_ndwt
+                        nt[t, 0] += exp_ndwt
+                        nd[d, 0] += exp_ndwt
 
             print "M-step"
 
-            phisums = sm(words, 1)
+            phisums = sm(topics, 1)
 
             for w in xrange(words):
                 for t in xrange(topics):
@@ -77,12 +74,12 @@ class DumbEMStaticRegLearner(Learner):
                                         * self.reg_coefficients[r_id] \
                                         * self.regs[r_id].df(phi, theta)[0][w, t]
                     phi[w, t] = pos(nwt[w, t] + reg_eval_sum)
-                    phisums[w, 0] += phi[w, t]
+                    phisums[t, 0] += phi[w, t]
 
             for w in xrange(words):
-                if phisums[w, 0] != 0:
-                    for t in xrange(topics):
-                        phi[w, t] /= phisums[w, 0]
+                for t in xrange(topics):
+                    if phisums[t, 0] != 0:
+                        phi[w, t] /= phisums[t, 0]
 
             thetasums = sm(docs, 1)
 

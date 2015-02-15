@@ -11,8 +11,19 @@ import random
 def pos(val):
     return max(val, 0)
 
+# todo: code deduplication
+def build_tdm_from_texts(texts, min_df=0.1, max_df=1.0, ngram_range=(1, 1)):
+    """
+        Given texts, builds term-document matrix;
+        rows = terms, columns = documents
+    """
+    stopwords = nltk.corpus.stopwords.words('english')
+    vectorizer = fe.text.CountVectorizer(min_df=min_df, ngram_range=ngram_range, max_df=max_df, stop_words=stopwords)
+    X_words = vectorizer.fit_transform(texts).transpose()
+    return vectorizer.get_feature_names(), X_words
 
-def build_tdm(filenames, min_df=0.1, max_df=0.3, ngram_range=(1, 1)):
+
+def build_tdm_from_files(filenames, min_df=0.1, max_df=0.3, ngram_range=(1, 1)):
     """
         Given filenames, builds term-document matrix;
         rows = terms, columns = documents

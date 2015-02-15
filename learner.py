@@ -41,10 +41,14 @@ class EMStaticRegLearner(Learner):
         print "phi\n", phi.todense()
         print "theta\n", theta.todense()
 
-        while i < iterations:
+        nnorm = 1.0
+
+        while i < iterations and nnorm > 0.000001:
 
             print "iteration #", i,
             i += 1
+
+            phi_old = dok_matrix(phi)
 
             nwt, ntd, nd, nt = sm(words, topics_number), sm(topics_number, docs), sm(docs, 1), sm(topics_number, 1)
 
@@ -73,5 +77,9 @@ class EMStaticRegLearner(Learner):
                     phi[w, t] = nwt[w, t] / (nt[t, 0] + 0.001)
                 for d in xrange(docs):
                     theta[t, d] = ntd[t, d] / (nd[d, 0] + 0.0001)
+
+
+            nnorm = norm((phi - phi_old).toarray())
+            print "phi diff = ", nnorm
 
         return phi, theta

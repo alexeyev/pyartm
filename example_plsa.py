@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     # Building a term-document matrix
 
-    words, tdm = build_tdm(onlyfiles, min_df=0.25, max_df=1.0)
+    words, tdm = build_tdm_from_files(onlyfiles, min_df=0.25, max_df=1.0)
 
     print tdm.todense()
 
