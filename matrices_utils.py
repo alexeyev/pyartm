@@ -17,7 +17,7 @@ def build_tdm_from_texts(texts, min_df=0.1, max_df=1.0, ngram_range=(1, 1)):
         Given texts, builds term-document matrix;
         rows = terms, columns = documents
     """
-    stopwords = nltk.corpus.stopwords.words('english')
+    stopwords = nltk.corpus.stopwords.words('english') + nltk.corpus.stopwords.words('russian')
     vectorizer = fe.text.CountVectorizer(min_df=min_df, ngram_range=ngram_range, max_df=max_df, stop_words=stopwords)
     X_words = vectorizer.fit_transform(texts).transpose()
     return vectorizer.get_feature_names(), X_words

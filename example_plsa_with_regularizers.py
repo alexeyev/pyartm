@@ -6,20 +6,20 @@ from os.path import isfile, join
 from em2_learner import DumbEMStaticRegLearner
 
 from learner import *
-import scipy
-from regularizers import ZeroRegularizer, LDARegularizer
+from matplotlib.pyplot import  figure, show, spy
 
 if __name__ == '__main__':
 
     # Choosing a directory with texts
 
+    path = "corpora/more"
     # path = "corpora/test"
-    path = "corpora/chgk.dataset/chgk.text.csv"
+    # path = "corpora/chgk.dataset/chgk.text.csv"
 
     if not "dataset" in path:
         onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
         print "files:", ", ".join(onlyfiles)
-        words, tdm = build_tdm_from_files(onlyfiles, min_df=0.0005, max_df=0.7)
+        words, tdm = build_tdm_from_files(onlyfiles[:100], min_df=0.2, max_df=0.7)
     else:
         texts = []
         count = 0
@@ -28,12 +28,12 @@ if __name__ == '__main__':
             if count % 10000 == 0:
                 print count, "lines read"
             texts.append(line.split(";")[1])
-        words, tdm = build_tdm_from_texts(texts[:100], min_df=0.05, max_df=0.9)
+        words, tdm = build_tdm_from_texts(texts[:100], min_df=0.2, max_df=0.7)
 
     print "TDM built, starting EM..."
 
-    learner = DumbEMStaticRegLearner(iter_number=500)
-    wt, td = learner.learn(tdm, topics_number=10)
+    learner = DumbEMStaticRegLearner(iter_number=5000)
+    wt, td = learner.learn(tdm, topics_number=40)
 
     print "It is done."
 
@@ -53,6 +53,13 @@ if __name__ == '__main__':
         wordedcol = zip(words, colarray)
         print "topic", i, "|- ", " ".join(
             map(lambda x: x[0], sorted(wordedcol, reverse=True, key=lambda x: x[1])[:20]))
+
+
+    # drawing matrix sparsity
+    fig = figure()
+    ax = fig.add_subplot(111)
+    ax.spy(wt,  precision=1e-3, marker='.', markersize=5)
+    show()
 
     print "\ntopic -> document\n"
 

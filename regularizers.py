@@ -4,6 +4,7 @@
 from scipy.sparse import *
 from math import *
 
+
 class Reg:
     def f(self, wt, td):
         """
@@ -69,3 +70,15 @@ class LDARegularizer(Reg):
             for d in xrange(docs):
                 dtheta[t, d] = self.td_bias * self.td_distr[t] / (td[t, d] + 0.00001)
         return dphi, dtheta
+
+
+class EmbeddingsRegularizer(Reg):
+
+    def __init__(self, word2vector_dict):
+        pass
+
+    def f(self, wt, td):
+        raise NotImplementedError
+
+    def df(self, wt, td):
+        raise NotImplementedError
