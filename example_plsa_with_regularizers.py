@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # Choosing a directory with texts
 
-    path = "corpus/test"
+    path = "more"  # "corpus/test"
     onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
     print "files:", ", ".join(onlyfiles)
 
@@ -25,31 +25,31 @@ if __name__ == '__main__':
 
     print "TDM built, starting EM..."
 
-    learner = DumbEMStaticRegLearner(iter_number=50, regularizers=[ZeroRegularizer(), ZeroRegularizer()],
+    learner = DumbEMStaticRegLearner(iter_number=500, regularizers=[ZeroRegularizer(), ZeroRegularizer()],
                                      reg_coefficients=[0.2, 0.3])
-    wt, td = learner.learn(tdm, topics_number=5)
+    wt, td = learner.learn(tdm, topics_number=12)
 
     print "It is done."
 
     result = (wt * td).todense()
 
-    for word, row in zip(result, words):
-        print word, row
+    # for word, row in zip(result, words):
+    #     print word, row
 
     print "\nword -> topic\n"
 
-    for word, row in zip(wt.todense(), words):
-        print word, row
+    # for word, row in zip(wt.todense(), words):
+    #     print word, row
 
     for i in xrange(wt.shape[1]):
         col = wt.getcol(i)
         colarray = col.transpose().toarray()[0]
         wordedcol = zip(words, colarray)
-        print "topic", i, " | ".join(
+        print "topic", i, "|", ", ".join(
             map(lambda x: x[0],
-                filter(lambda x: x[1] > 0.008, sorted(wordedcol, reverse=True, key=lambda x: x[1]))))
+                sorted(wordedcol, reverse=True, key=lambda x: x[1])[:20]))
 
     print "\ntopic -> document\n"
 
-    for doc, filename in zip(td.transpose().todense(), onlyfiles):
-        print doc, filename
+    # for doc, filename in zip(td.transpose().todense(), onlyfiles):
+    #     print doc, filename

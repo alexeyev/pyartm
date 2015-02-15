@@ -21,6 +21,9 @@ class DumbEMStaticRegLearner(Learner):
             :return:
         """
 
+        print "computing relative TDM frequencies"
+        freq_tdm = relative_frequencies_tdm(tdm_csc)
+
         print "converting tdm to DOK matrix"
         tdm = tdm_csc.todok()
 
@@ -33,8 +36,12 @@ class DumbEMStaticRegLearner(Learner):
         print "theta\n", theta.todense()
 
         i = 0
+        phi_old = sm(phi.shape[0], phi.shape[1])
 
-        while i < iterations:  # and norm_val > 0.01:
+        while i < iterations and norm((phi - phi_old).toarray()) > 0.000001:
+
+            phi_old = dok_matrix(phi)
+            theta_old = dok_matrix(theta)
 
             print "---------------------------------"
             print "iteration #", i
@@ -71,9 +78,10 @@ class DumbEMStaticRegLearner(Learner):
                     phi[w, t] = pos(nwt[w, t] + reg_eval_sum)
                     phisums[w, 0] += phi[w, t]
 
-            for t in xrange(topics):
-                for w in xrange(words):
-                    phi[w, t] /= phisums[w, 0]
+            for w in xrange(words):
+                if phisums[w, 0] != 0:
+                    for t in xrange(topics):
+                        phi[w, t] /= phisums[w, 0]
 
             thetasums = sm(docs, 1)
 
@@ -88,7 +96,12 @@ class DumbEMStaticRegLearner(Learner):
                     thetasums[d, 0] += theta[t, d]
 
             for d in xrange(docs):
-                for t in xrange(topics):
-                    theta[t, d] /= thetasums[d, 0]
+                if thetasums[d, 0] != 0:
+                    for t in xrange(topics):
+                        theta[t, d] /= thetasums[d, 0]
+
+            print "phi diff = ", norm((phi - phi_old).toarray())
+            print "theta diff = ", norm((theta - theta_old).toarray())
+            print "recovery norm = ", norm((freq_tdm - (phi * theta)).toarray())
 
         return phi, theta
