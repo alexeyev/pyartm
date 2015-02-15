@@ -25,6 +25,7 @@ class DumbEMStaticRegLearner(Learner):
         # freq_tdm = relative_frequencies_tdm(tdm_csc)
 
         print "converting tdm to DOK matrix"
+        print "tdm shape = ", tdm_csc.shape
         tdm = tdm_csc.todok()
 
         words, docs = tdm_csc.shape
@@ -34,6 +35,7 @@ class DumbEMStaticRegLearner(Learner):
         i = 0
         normm = 10.0
 
+        print "iterations..."
         while i < iterations and normm > 0.000001:
 
             phi_old = dok_matrix(phi)
@@ -56,11 +58,10 @@ class DumbEMStaticRegLearner(Learner):
                     for t in xrange(topics):
                         phi_theta_dw += phi[w, t] * theta[t, d]
                     for t in xrange(topics):
-                        exp_ndwt = (phi[w, t] * theta[t, d]) / (phi_theta_dw + 0.0001) * tdm[w, d]
-                        nwt[w, t] += exp_ndwt
-                        ntd[t, d] += exp_ndwt
-                        nt[t, 0] += exp_ndwt
-                        nd[d, 0] += exp_ndwt
+                        if phi_theta_dw > 0:
+                            exp_ndwt = (phi[w, t] * theta[t, d]) / phi_theta_dw * tdm[w, d]
+                            nwt[w, t] += exp_ndwt
+                            ntd[t, d] += exp_ndwt
 
             print "M-step"
 

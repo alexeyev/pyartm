@@ -55,9 +55,6 @@ def init_matrices(terms, docs, topics):
         for j in xrange(terms):
             phi[j, i] = phi[j, i] / sum
 
-    # print "phi"
-    # print phi
-
     theta = dok_matrix((topics, docs))
 
     for i in xrange(docs):
@@ -67,9 +64,6 @@ def init_matrices(terms, docs, topics):
             sum += theta[j, i]
         for j in xrange(topics):
             theta[j, i] = theta[j, i] / sum
-
-    # print "theta"
-    # print theta
 
     return phi, theta
 
