@@ -37,8 +37,9 @@ class DumbEMStaticRegLearner(Learner):
 
         i = 0
         phi_old = sm(phi.shape[0], phi.shape[1])
+        normm = 10.0
 
-        while i < iterations and norm((phi - phi_old).toarray()) > 0.000001:
+        while i < iterations and normm > 0.000001:
 
             phi_old = dok_matrix(phi)
             theta_old = dok_matrix(theta)
@@ -100,8 +101,9 @@ class DumbEMStaticRegLearner(Learner):
                     for t in xrange(topics):
                         theta[t, d] /= thetasums[d, 0]
 
-            print "phi diff = ", norm((phi - phi_old).toarray())
+            normm = norm((phi - phi_old).toarray())
+            print "phi diff = ", normm
             print "theta diff = ", norm((theta - theta_old).toarray())
-            print "recovery norm = ", norm((freq_tdm - (phi * theta)).toarray())
+            # print "recovery norm = ", norm((freq_tdm - (phi * theta)).toarray())
 
         return phi, theta

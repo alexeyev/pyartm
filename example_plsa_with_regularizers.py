@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # Choosing a directory with texts
 
-    path = "more"  # "corpus/test"
+    path = "corpus/chgk.dataset"
     onlyfiles = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
     print "files:", ", ".join(onlyfiles)
 
@@ -25,8 +25,8 @@ if __name__ == '__main__':
 
     print "TDM built, starting EM..."
 
-    learner = DumbEMStaticRegLearner(iter_number=500, regularizers=[ZeroRegularizer(), ZeroRegularizer()],
-                                     reg_coefficients=[0.2, 0.3])
+    learner = DumbEMStaticRegLearner(iter_number=500, regularizers=[],
+                                     reg_coefficients=[])
     wt, td = learner.learn(tdm, topics_number=12)
 
     print "It is done."
